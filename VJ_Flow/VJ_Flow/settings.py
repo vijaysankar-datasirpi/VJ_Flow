@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,6 +50,7 @@ SHARED_APPS=[
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_celery_beat',
+    'Tenants',
 ]
 
 TENANT_APPS=[
@@ -102,7 +105,7 @@ WSGI_APPLICATION = 'VJ_Flow.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django_tenants.postgresql_backend',
-        'NAME': 'VJ_Flow',
+        'NAME': 'vj_flow',
         'USER': 'postgres',
         'PASSWORD': 'Vj10',
         'HOST': 'localhost',
@@ -155,10 +158,18 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'connectly.now@gmail.com'
-EMAIL_HOST_PASSWORD = 'nfhk pceh vdvc gikx'
-DEFAULT_FROM_EMAIL = 'connectly.now@gmail.com'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'connectly.now@gmail.com'
+# EMAIL_HOST_PASSWORD = 'nfhk pceh vdvc gikx'
+# DEFAULT_FROM_EMAIL = 'connectly.now@gmail.com'
+
+CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BEAT_SCHEDULE = {
+    'dispatcher-task-every-minute': {
+        'task': 'MailTask.tasks.dispatcher_task',
+        'schedule': crontab(minute='*'),
+    },
+}
